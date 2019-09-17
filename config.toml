@@ -1,0 +1,63 @@
+baseurl = "/"
+languageCode = "en-us"
+theme = "hugo-theme-terminal"
+paginate = 5
+defaultcontentlanguage = "en" # The default content language.
+
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+
+[params]
+#  author = "Nick Hatley"
+#  description = "A place for things"
+#  keywords = "MLB, NBA, rstats, NHL, politics"
+  contentTypeName = "baseball"
+  themeColor = "orange"
+  showMenuItems = 0
+  fullWidthTheme = true
+  centerTheme = false
+  
+[[params.social]]
+    name = "Github"
+    weight = 5
+    url = "https://github.com/nhatley"
+[[params.social]]
+    name = "Twitter"
+    weight = 6
+    url = "https://twitter.com/nhatley/"
+
+#[[menu.main]]
+#    name = "Baseball"
+#    weight = 1
+#    url  = "/baseball/"
+#[[menu.main]]
+#    name = "About"
+#    weight = 3
+#    url = "/about/"
+#[[menu.main]]
+#    name = "Home"
+#    weight = 5
+#    url = "/"  
+
+[languages]
+  [languages.en]
+    title = "Nick Hatley"
+    subtitle = "MLB, NBA, rstats, NHL, politics"
+    keywords = "rstats, mlb, baseball, mlb, baseball analytics"
+    copyright = ""
+    menuMore = "Menu"
+    readMore = "Read more"
+    readOtherPosts = "Read other posts"
+
+    [languages.en.params.logo]
+      logoText = "Nick Hatley"
+      logoHomeLink = "/"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "about"
+        name = "About"
+        url = "/about"
+      [[languages.en.menu.main]]
+        identifier = "baseball"
+        name = "Baseball"
+        url = "/baseball"

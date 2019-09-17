@@ -1,0 +1,197 @@
+---
+title: "Barrel percent by launch angle"
+author: "Nick Hatley"
+date: "2019-09-04"
+output:
+  blogdown::html_page
+categories: ["R"]
+slug: barrels
+
+tags: ["R Markdown", "blogdown"]
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(message = FALSE)
+options(knitr.table.format = "html")
+```
+
+Data from this post retreived via the fabulous [`baseballr`](http://billpetti.github.io/baseballr/) package from Bill Petti. Code is at the end of the post. 
+
+```{r get librarys, function and data}
+library(tidyverse)
+
+barrels_15_19 <- map(2015:2019,
+                     ~baseballr::scrape_savant_leaderboards(
+                       leaderboard = "exit_velocity_barrels", 
+                       year = .x)) %>% 
+  bind_rows
+
+plot_theme = function (base_size = 9) {
+  theme_bw(base_size = base_size) %+replace% 
+    theme(plot.title = element_text( 
+      size = 13, 
+      margin = margin(b=4, unit = "pt"), 
+      hjust = 0, vjust = 0
+    ),
+    plot.subtitle = element_text(
+      size = 9, 
+      face = "italic", 
+      colour = "#595959", 
+      margin = margin(b = 6, unit = "pt"), 
+      hjust = 0, vjust = 0
+    ), 
+    plot.caption = element_text(
+      size = 10,
+      color = "#7F7F7F", 
+      hjust = .92, vjust = 0,
+      face = "italic"
+    ),
+    axis.title = element_text(color = "gray8", size = 10),
+    axis.text = element_text(color = "gray8", size = 9), 
+    
+    axis.line = element_line(color = "#A4A4A4", size = .2),
+    strip.text.x = element_text(color = "gray8", size = 10, margin = margin(.175,0,
+                                                                         .175,0, "cm")),
+    strip.text.y = element_text(color = "gray8", size = 10, margin = margin(0,.175,
+                                                                            0,.175, "cm")),
+    strip.background = element_rect(fill = "#f8f2e4", size = 1.2),
+    
+    #axis.ticks = element_line(color = "#A4A4A4", size = .2),
+    axis.ticks = element_blank(),
+    axis.ticks.length = unit(8, "pt"),
+    legend.title = element_blank(),
+    legend.margin=margin(0,0,0,0),
+    legend.position = "bottom",
+    legend.box.margin=margin(-5,-10, 0,-10),
+    panel.grid = element_line(color = "#A4A4A4", size = .2),
+    
+    panel.grid.major.y = element_line(linetype = "solid", color = "#A4A4A4", size = .75),
+    panel.grid.major.x = element_line(linetype = "solid", color = "#A4A4A4", size = .15),
+    panel.grid.minor.y = element_line(linetype = "dotted", color = "#A4A4A4", size = .4),
+    panel.grid.minor.x = element_line(linetype = "dotted", color = "#A4A4A4", size = .4),
+    #panel.border = element_blank(), 
+    complete = TRUE
+    )
+}
+
+```
+
+
+
+
+```{r, fig.height=8.5, fig.width=10.5}
+p = barrels_15_19 %>% 
+  group_by(last_name, first_name, player_id) %>% 
+  summarise(attempts = sum(attempts),
+            barrels = sum(barrels),
+            seasons = n(),
+            avg_hit_speed = sum(avg_hit_speed) / seasons,
+            avg_distance = sum(avg_distance) / seasons,  
+            avg_hr_distance = sum(avg_hr_distance) / seasons,
+            brl_percent = sum(brl_percent) / seasons,
+            avg_hit_angle = sum(avg_hit_angle) / seasons,
+            anglesweetspotpercent = sum(anglesweetspotpercent) / seasons
+            ) %>% 
+  ungroup %>% 
+  mutate(player = paste(first_name, last_name, sep = " ")) %>% 
+  filter(avg_hit_angle > 0) %>% 
+  ggplot(
+    aes(
+      x = brl_percent, 
+      y = avg_hit_angle, 
+      group = player
+    )
+    ) + 
+  geom_jitter(
+    shape = 21, stroke = rel(1.25),
+    colour = "#13274F", fill = "white"
+  ) + 
+  ggrepel::geom_text_repel(data = . %>% 
+                             filter((avg_hit_angle < 20 & brl_percent > 16) | (avg_hit_angle > 20 & brl_percent > 10)),
+                          aes(
+                            label = player
+                          )
+                           ) + 
+  plot_theme() + 
+  labs(x = "Barrel Percent",
+       y = "Average Launch Angle for Hits"
+       ) 
+
+p
+```
+
+************
+  
+    
+    
+    
+    
+Interactive version     
+  
+```{r, fig.height=8.5, fig.width=10.5}
+p_ly = plotly::ggplotly(p)
+
+p_ly
+```
+
+
+*********
+
+Code for post:
+```{r, eval=FALSE, echo = TRUE}
+##get data via 
+library(tidyverse)
+
+barrels_15_19 <- map(2015:2019,
+                     ~baseballr::scrape_savant_leaderboards(
+                       leaderboard = "exit_velocity_barrels", 
+                       year = .x)) %>% 
+  bind_rows
+
+##ggplot plot
+p = barrels_15_19 %>% 
+  group_by(last_name, first_name, player_id) %>% 
+  summarise(attempts = sum(attempts),
+            barrels = sum(barrels),
+            seasons = n(),
+            avg_hit_speed = sum(avg_hit_speed) / seasons,
+            avg_distance = sum(avg_distance) / seasons,  
+            avg_hr_distance = sum(avg_hr_distance) / seasons,
+            brl_percent = sum(brl_percent) / seasons,
+            avg_hit_angle = sum(avg_hit_angle) / seasons,
+            anglesweetspotpercent = sum(anglesweetspotpercent) / seasons
+            ) %>% 
+  ungroup %>% 
+  mutate(player = paste(first_name, last_name, sep = " ")) %>% 
+  filter(avg_hit_angle > 0) %>% 
+  ggplot(
+    aes(
+      x = brl_percent, 
+      y = avg_hit_angle, 
+      group = player
+    )
+    ) + 
+  geom_jitter(
+    shape = 21, stroke = rel(1.25),
+    colour = "#13274F", fill = "white"
+  ) + 
+  ggrepel::geom_text_repel(data = . %>% 
+                             filter((avg_hit_angle < 20 & brl_percent > 16) | (avg_hit_angle > 20 & brl_percent > 10)),
+                          aes(
+                            label = player
+                          )
+                           ) + 
+  plot_theme() + ##this is just farily simple plot theme I made
+  labs(x = "Barrel Percent",
+       y = "Average Launch Angle for Hits"
+       ) 
+
+##plotly interactive plot
+p_ly = plotly::ggplotly(p)
+
+```
+
+   
+   
+   
