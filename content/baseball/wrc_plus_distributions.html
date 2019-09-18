@@ -1,0 +1,28 @@
+---
+title: "WRC+ Distributions"
+author: "Nick Hatley"
+date: "2019-09-18"
+output:
+  blogdown::html_page
+categories: ["R"]
+slug: wrc_plus
+
+tags: ["R Markdown", "blogdown"]
+---
+
+
+
+<p>Weighted Runs Created Plus or <a href="https://library.fangraphs.com/offense/wrc/">wrc+</a> is a nice stat for analyzing <em>relative</em> hitter performance for a certain year. It’s relative because it is scaled to every hitter in the league for that season.</p>
+<p>So, an average hitter has a wrc+ of 100. This makes it interesting to look at a team’s wrc+ distribution to see how many good hitters they have.</p>
+<p>You can see the league wrc+ distribution is fairly evenly distributed. It’s not exactly even here because I’ve filtered the dataset I’m using down to players that have over 100 plate attempts. You can see from the first figure here that there are big bumps at the 80-90 wrc+ and 110-120 ranges. The mean for the set of players with &gt;100 attempts is 97.</p>
+<p><img src="/baseball/wrc_plus_distributions_files/figure-html/unnamed-chunk-1-1.png" width="45%" height="35%" style="display: block; margin: auto;" /></p>
+<hr />
+<p>A couple things stand out to me. Take the Astros and Yankees. The Astros have a hump at around 80 or so wrc+, but over half their team is &gt;100 and is pretty evenly distributed up to the 150 or so range. The number of &gt;150 wrc+ hitters in their lineup is unheard of across the league and is a big reason why they lead the league with the team average of 122. The Yankees on, the other hand, have almost no 150 or higher wrc+ hitters, but almost all of their hitters are above league average.</p>
+<hr />
+<p><img src="/baseball/wrc_plus_distributions_files/figure-html/unnamed-chunk-2-1.png" width="60%" height="40%" style="display: block; margin: auto;" /></p>
+<hr />
+<p>Next is a set of teams in the top-end to middle of the pack: the Braves, Nationals, and Diamondbacks. They each get to the 100 wrc+ range kinda differently. The Braves are well represented in terms of average hitters but have slightly higher representation in the 125+ range. The Nationals have a big hump at the 90 range, and then almost no 120 or so hitters, but then have a couple hitters at the 150+ range. The Diamondbacks fall almost exactly on the league wide distributions with fewer hitters on the tails and higher concentration of average hitters.</p>
+<p><img src="/baseball/wrc_plus_distributions_files/figure-html/unnamed-chunk-3-1.png" width="50%" height="25%" style="display: block; margin: auto;" /></p>
+<hr />
+<p>Here’s every team in the league:</p>
+<p><img src="/baseball/wrc_plus_distributions_files/figure-html/unnamed-chunk-4-1.png" width="90%" height="300%" style="display: block; margin: auto;" /></p>

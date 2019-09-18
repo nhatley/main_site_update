@@ -1,0 +1,226 @@
+---
+title: "WRC+ Distributions"
+author: "Nick Hatley"
+date: "2019-09-18"
+output:
+  blogdown::html_page
+categories: ["R"]
+slug: wrc_plus
+
+tags: ["R Markdown", "blogdown"]
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning =  FALSE)
+knitr::opts_chunk$set(message = FALSE)
+options(knitr.table.format = "html")
+```
+
+
+```{r get librarys, function and data}
+library(tidyverse)
+mlb_db_dir = "~/Dropbox/mlb_db/"
+wrc <- read_rds(paste0(mlb_db_dir, "output/wrc_plus.rds"))
+source(paste0(mlb_db_dir, "code/functions/plot_theme.R"))
+color_manual = c(
+  "league" = "gray54",
+  "team" = "#CE1141"
+)
+```
+
+Weighted Runs Created Plus or [wrc+](https://library.fangraphs.com/offense/wrc/) is a nice stat for analyzing _relative_ hitter performance for a certain year. It's relative because it is scaled to every hitter in the league for that season. 
+  
+So, an average hitter has a wrc+ of 100. This makes it interesting to look at a team's wrc+ distribution to see how many good hitters they have.   
+
+You can see the league wrc+ distribution is fairly evenly distributed. It's not exactly even here because I've filtered the dataset I'm using down to players that have over 100 plate attempts. You can see from the first figure here that there are big bumps at the 80-90 wrc+ and 110-120 ranges. The mean for the set of players with >100 attempts is 97.  
+
+```{r, out.width = "45%", out.height= "35%", fig.align='center'}
+
+wrc %>% 
+  mutate(team2 = ifelse(team == "league", "league", "team")) %>% 
+  mutate(team_flag = str_extract(team_flag, "^.*\\ +") %>% str_remove("\\+") %>% str_trim) %>% 
+  group_by(team_flag) %>%
+  fill(mean_wrc_plus) %>%
+  ungroup %>%
+  mutate(team_flag = paste0(team_flag, "\n", "Team wrc+ = ", round(mean_wrc_plus, 0))) %>% 
+  mutate(team_flag = fct_reorder(team_flag, -mean_wrc_plus)) %>% 
+  filter(team == "league") %>% 
+  select(-team_flag) %>% 
+  ggplot(
+    aes(
+      x = wrc_plus,
+      fill = team2
+    )
+  ) +
+    geom_vline(xintercept = 100, linetype = 2) + 
+
+  geom_density(#data = . %>% filter(team != "full"),
+    alpha = 0.25
+  ) +
+  scale_fill_manual(
+    values = color_manual
+  ) + 
+  plot_theme() +
+  facet_wrap(
+    vars(team),
+    scales = "free_x"
+  ) + 
+  scale_x_continuous(limits = c(0, 200),
+                     breaks = seq(0, 200, by = 50),
+                     labels = seq(0, 200, by = 50)
+  ) + 
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_blank(), 
+        axis.text.y = element_blank()
+  ) +
+  labs(caption = "Players with > 100 PA's. League avg for these players is 97",
+       x = "wrc+")
+```
+
+***********
+  
+  
+A couple things stand out to me. Take the Astros and Yankees. The Astros have a hump at around 80 or so wrc+, but over half their team is >100 and is pretty evenly distributed up to the 150 or so range. The number of >150 wrc+ hitters in their lineup is unheard of across the league and is a big reason why they lead the league with the team average of 122. The Yankees on, the other hand, have almost no 150 or higher wrc+ hitters, but almost all of their hitters are above league average.   
+  
+  
+***********
+```{r, out.width = "60%", out.height= "40%", fig.align='center'}
+wrc %>% 
+  mutate(team2 = ifelse(team == "league", "league", "team")) %>% 
+  mutate(team_flag = str_extract(team_flag, "^.*\\ +") %>% str_remove("\\+") %>% str_trim) %>% 
+  group_by(team_flag) %>%
+  fill(mean_wrc_plus) %>%
+  ungroup %>%
+  mutate(team_flag = paste0(team_flag, "\n", "Team wrc+ = ", round(mean_wrc_plus, 0))) %>% 
+  mutate(team_flag = fct_reorder(team_flag, -mean_wrc_plus)) %>% 
+  filter(str_detect(team_flag, "astros") | str_detect(team_flag, "yankees")) %>% 
+  ggplot(
+    aes(
+      x = wrc_plus,
+      fill = team2
+    )
+  ) +
+    geom_vline(xintercept = 100, linetype = 2) + 
+
+  geom_density(#data = . %>% filter(team != "full"),
+    alpha = 0.25
+  ) +
+  scale_fill_manual(
+    values = color_manual
+  ) + 
+  plot_theme() +
+  facet_wrap(
+    vars(team_flag),
+    scales = "free_x"
+  ) + 
+  scale_x_continuous(limits = c(0, 200),
+                     breaks = seq(0, 200, by = 50),
+                     labels = seq(0, 200, by = 50)
+  ) + 
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_blank(), 
+        axis.text.y = element_blank()
+  ) +
+  labs(caption = "Players with > 100 PA's. League avg for these players is 97",
+       x = "wrc+")
+```
+
+***********  
+
+Next is a set of teams in the top-end to middle of the pack: the Braves, Nationals, and Diamondbacks. They each get to the 100 wrc+ range kinda differently. The Braves are well represented in terms of average hitters but have slightly higher representation in the 125+ range. The Nationals have a big hump at the 90 range, and then almost no 120 or so hitters, but then have a couple hitters at the 150+ range. The Diamondbacks fall almost exactly on the league wide distributions with fewer hitters on the tails and higher concentration of average hitters.
+
+```{r, out.width = "50%", out.height= "25%", fig.align='center'}
+wrc %>% 
+  mutate(team2 = ifelse(team == "league", "league", "team")) %>% 
+  mutate(team_flag = str_extract(team_flag, "^.*\\ +") %>% str_remove("\\+") %>% str_trim) %>% 
+  group_by(team_flag) %>%
+  fill(mean_wrc_plus) %>%
+  ungroup %>%
+  mutate(team_flag = paste0(team_flag, "\n", "Team wrc+ = ", round(mean_wrc_plus, 0))) %>% 
+  mutate(team_flag = fct_reorder(team_flag, -mean_wrc_plus)) %>% 
+  filter(str_detect(team_flag, "braves") | 
+           str_detect(team_flag, "nationals") |
+              str_detect(team_flag, "diamondbacks")) %>%
+  ggplot(
+    aes(
+      x = wrc_plus,
+      fill = team2
+    )
+  ) +
+    geom_vline(xintercept = 100, linetype = 2) + 
+
+  geom_density(#data = . %>% filter(team != "full"),
+    alpha = 0.25
+  ) +
+  scale_fill_manual(
+    values = color_manual
+  ) + 
+  plot_theme() +
+  facet_wrap(
+      vars(team_flag),
+    scales = "free_x"
+  ) + 
+  scale_x_continuous(limits = c(0, 200),
+                     breaks = seq(0, 200, by = 50),
+                     labels = seq(0, 200, by = 50)
+  ) + 
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_blank(), 
+        axis.text.y = element_blank()
+  ) +
+  labs(caption = "Players with > 100 PA's. League avg for these players is 97",
+       x = "wrc+")
+```
+
+***********  
+
+Here's every team in the league: 
+
+
+``````{r, fig.height=12.5, fig.width=12.5}
+
+
+
+wrc %>% 
+  mutate(team2 = ifelse(team == "league", "league", "team")) %>% 
+  mutate(team_flag = str_extract(team_flag, "^.*\\ +") %>% str_remove("\\+") %>% str_trim) %>% 
+  group_by(team_flag) %>%
+  fill(mean_wrc_plus) %>%
+  ungroup %>%
+  mutate(team_flag = paste0(team_flag, "\n", "Team wrc+ = ", round(mean_wrc_plus, 0))) %>% 
+  mutate(team_flag = fct_reorder(team_flag, -mean_wrc_plus)) %>% 
+  ggplot(
+    aes(
+      x = wrc_plus,
+      fill = team2
+    )
+  ) +
+  geom_vline(xintercept = 100, linetype = 2) + 
+  geom_density(#data = . %>% filter(team != "full"),
+    alpha = 0.25
+  ) +
+  scale_fill_manual(
+    values = color_manual
+  ) + 
+  plot_theme() +
+  facet_wrap(
+    vars(team_flag)
+    ) + 
+  scale_x_continuous(limits = c(0, 200),
+                     breaks = seq(0, 200, by = 50),
+                     labels = seq(0, 200, by = 50)
+                     ) + 
+  theme(panel.grid.minor = element_blank(),
+        panel.grid.major.x = element_blank(),
+        axis.title.y = element_blank(), 
+        axis.text.y = element_blank()
+        ) +
+  ggtitle("Weighted Runs Created Plus (wrc+) distributions by team",
+          subtitle = "Grey density plots represent league as a whole"
+          ) +
+  labs(caption = "Players with > 100 PA's. League avg for these players is 97",
+       x = "wrc+")
+```

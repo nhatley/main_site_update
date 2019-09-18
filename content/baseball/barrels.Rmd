@@ -16,7 +16,19 @@ knitr::opts_chunk$set(message = FALSE)
 options(knitr.table.format = "html")
 ```
 
-Data from this post retreived via the fabulous [`baseballr`](http://billpetti.github.io/baseballr/) package from Bill Petti. Code is at the end of the post. 
+Data from this post retreived via the fabulous [`baseballr`](http://billpetti.github.io/baseballr/) package from Bill Petti.   
+  
+   
+     
+    
+    
+  
+  
+Code is at the end of the post.   
+  
+  
+**********  
+  
 
 ```{r get librarys, function and data}
 library(tidyverse)

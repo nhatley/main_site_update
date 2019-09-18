@@ -1,7 +1,7 @@
 baseurl = "/"
 languageCode = "en-us"
 theme = "hugo-theme-terminal"
-paginate = 5
+paginate = 2
 defaultcontentlanguage = "en" # The default content language.
 
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
